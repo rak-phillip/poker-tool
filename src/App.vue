@@ -2,6 +2,9 @@
   <v-app>
     <HeaderBlock></HeaderBlock>
     <v-main class="router-block">
+      NOT FAIL {{ backendURL }}
+      <br />
+      IS PROD: {{ isProd }}
       <router-view />
     </v-main>
   </v-app>
@@ -14,6 +17,16 @@ export default {
   name: "App",
   components: {
     HeaderBlock,
+  },
+  data() {
+    return {
+      backendURL: "",
+      isProd: "",
+    };
+  },
+  mounted() {
+    this.backendURL = process.env.VUE_APP_SERVER_URL;
+    this.isProd = process.env.NODE_ENV;
   },
 };
 </script>
