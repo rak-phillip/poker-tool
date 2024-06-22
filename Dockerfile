@@ -9,6 +9,8 @@ RUN yarn install --frozen-lockfile && yarn global add serve
 
 COPY . .
 
+ENV VUE_APP_SERVER_URL=${VUE_APP_SERVER_URL}
+
 RUN yarn build
 
 EXPOSE 4000
