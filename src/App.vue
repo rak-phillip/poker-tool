@@ -33,6 +33,7 @@ export default {
 
 <style lang="scss">
 @import "./styles/global.scss";
+@import url("https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap");
 </style>
 
 <style lang="scss" scoped>

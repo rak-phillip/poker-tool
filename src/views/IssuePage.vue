@@ -1,6 +1,5 @@
 <script>
 import { mapGetters } from "vuex";
-import NotLoggedDialog from "../components/NotLoggedDialog.vue";
 import VotingBlock from "../components/VotingBlock.vue";
 import IssueDetails from "../components/IssueDetails.vue";
 
@@ -9,7 +8,6 @@ import HandleAuth from "../mixins/HandleAuth";
 export default {
   name: "IssuePage",
   components: {
-    NotLoggedDialog,
     VotingBlock,
     IssueDetails,
   },
@@ -35,9 +33,6 @@ export default {
     },
   },
   methods: {
-    updateDialogVisibility(val) {
-      this.showNotLoggedDialog = val;
-    },
     backToPlanning() {
       this.$router.push({
         name: "room",
@@ -53,25 +48,15 @@ export default {
 <template>
   <div>
     <!-- loading -->
-    <v-overlay :value="loading">
+    <v-overlay :value="loadingValidateRoom">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
     <!-- welcome to room -->
-    <div v-if="!loading">
-      <NotLoggedDialog
-        :showNotLoggedDialog="showNotLoggedDialog"
-        :sessionName="sessionName"
-        :userId="userId"
-        @updateShowNotLoggedDialog="updateDialogVisibility"
-      />
+    <div v-if="!loadingValidateRoom">
       <div v-if="currentIssue">
         <div class="controls-block">
-          <v-btn
-            class="btn-secondary btn-back"
-            outlined
-            @click="backToPlanning"
-          >
-            <v-icon start icon="mdi-arrow-left"></v-icon>
+          <v-btn class="btn-secondary btn-back" text @click="backToPlanning">
+            <v-icon dense left>mdi-arrow-left</v-icon>
             Back to Planning
           </v-btn>
           <v-switch
@@ -95,7 +80,9 @@ export default {
 <style lang="scss" scoped>
 h1 {
   font-size: 20px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
+  font-weight: 400;
+  line-height: 1.25;
 }
 
 .controls-block {
@@ -106,6 +93,10 @@ h1 {
   .toggle {
     margin-top: 0;
     padding: 0 0 0 1rem;
+
+    .v-label {
+      color: var(--body-text) !important;
+    }
   }
 }
 </style>

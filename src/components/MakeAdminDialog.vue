@@ -43,21 +43,21 @@ export default {
     <v-dialog v-model="dialogVisibility" width="500" persistent>
       <div class="dialog-content">
         <h3>User: {{ user.username }}</h3>
-        <p>
-          Do you want to make <span class="bold">{{ user.username }}</span> an
-          admin of this session?
+        <p class="dialog-text">
+          <span class="dialog-text__line">
+            Do you want to make
+            <strong>{{ user.username }}</strong>
+            an admin of this session?
+          </span>
+          <span class="dialog-text__line">
+            You will lose your admin privileges!
+          </span>
         </p>
         <div class="dialog-controls">
-          <v-btn class="btn-secondary" @click="cancel">Cancel</v-btn>
+          <v-btn outlined class="btn-secondary" @click="cancel">Cancel</v-btn>
           <v-btn class="btn-primary" @click="resetIssue">Confirm</v-btn>
         </div>
       </div>
     </v-dialog>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.bold {
-  font-weight: bold;
-}
-</style>

@@ -14,7 +14,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["issues", "localUser", "isUserAdmin"]),
+    ...mapGetters(["issues", "localUser", "isUserAdmin", "githubApiToken"]),
     issuesToEstimate() {
       if (this.issues?.length) {
         return this.issues?.filter((issue) => !issue.finalVote);
@@ -43,7 +43,7 @@ export default {
         const axiosInstance = this.$axios.create({
           baseURL: "https://api.github.com",
           headers: {
-            Authorization: `Bearer ${process.env.VUE_APP_API_TOKEN}`,
+            Authorization: `Bearer ${this.githubApiToken}`,
           },
         });
 
@@ -131,13 +131,30 @@ export default {
         outlined
         v-for="(issue, i) in issuesToEstimate"
         :key="i"
+        @click="goToIssue(issue.number)"
       >
+        <div class="delete-button">
+          <v-tooltip left>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                class="btn-danger"
+                v-if="isUserAdmin"
+                @click="removeIssue(issue.number)"
+              >
+                <v-icon v-bind="attrs" v-on="on">mdi-delete</v-icon>
+              </v-btn>
+            </template>
+            <span>Delete issue</span>
+          </v-tooltip>
+        </div>
         <v-card-title>
           <a
             :href="`https://github.com/rancher/dashboard/issues/${issue.number}`"
             target="_blank"
             rel="noopener noreferrer nofollow"
             class="issue-number"
+            @click.stop=""
             >#{{ issue.number }}</a
           >
           <h3>{{ issue.title }}</h3>
@@ -153,30 +170,6 @@ export default {
           <Markdown :text="issue?.body"></Markdown>
           <!-- <p class="issue-text" v-html="issue.body"></p> -->
         </v-card-text>
-
-        <v-card-actions>
-          <div class="card-actions-block">
-            <div>
-              <v-btn
-                outlined
-                class="btn-danger"
-                v-if="isUserAdmin"
-                @click="removeIssue(issue.number)"
-              >
-                Delete
-              </v-btn>
-            </div>
-            <div>
-              <v-btn
-                outlined
-                class="btn-secondary"
-                @click="goToIssue(issue.number)"
-              >
-                Check / Vote
-              </v-btn>
-            </div>
-          </div>
-        </v-card-actions>
       </v-card>
     </div>
     <div class="placeholder-block" v-else>
@@ -203,13 +196,25 @@ export default {
   gap: 2rem 1.5rem;
 
   .v-card.issue-card {
+    position: relative;
     width: 100%;
-    border-radius: 0;
-    border-color: var(--grey-82);
+    border-radius: 20px;
+    background-color: var(--bg-120);
+    border: solid 1px var(--bg-90);
     display: grid;
     grid-template-rows: auto 1fr auto;
     display: flex;
     flex-direction: column;
+    transition: background-color linear 100ms;
+
+    .delete-button {
+      position: absolute;
+      right: 0.5rem;
+      top: 0.75rem;
+    }
+    &:hover {
+      background-color: var(--bg-125);
+    }
   }
 
   .v-card__title {
@@ -220,6 +225,8 @@ export default {
     h3 {
       line-height: 20px;
       margin-bottom: 0.5rem;
+      color: var(--body-text);
+      font-weight: 500;
     }
 
     .issue-number {
@@ -232,7 +239,7 @@ export default {
     }
 
     .author-date {
-      color: var(--grey-46);
+      color: var(--fog-60);
       font-size: 14px;
       line-height: 14px;
       font-weight: 400;
@@ -248,16 +255,18 @@ export default {
 
   .issue-text-block {
     flex: 1;
+    padding-bottom: 1.5rem;
   }
   .issue-text {
-    max-height: 200px;
-    overflow: auto;
+    display: -webkit-box;
     color: var(--body-text);
-    font-weight: 300;
+    font-weight: 400;
     margin-bottom: 0;
-    .issue-text {
-      text-overflow: ellipsis;
-    }
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    line-clamp: 6;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .v-card__actions {
     padding: 0;
@@ -266,7 +275,7 @@ export default {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    padding: 1rem;
+    padding: 0 1rem 1.25rem 1rem;
     padding-top: 0;
   }
 }

@@ -1,6 +1,5 @@
 <script>
 import { mapGetters } from "vuex";
-import NotLoggedDialog from "../components/NotLoggedDialog.vue";
 import UserList from "../components/UserList.vue";
 import IssuesList from "../components/IssuesList.vue";
 import SessionBlock from "../components/SessionBlock.vue";
@@ -11,7 +10,6 @@ import HandleAuth from "../mixins/HandleAuth";
 export default {
   name: "RoomPage",
   components: {
-    NotLoggedDialog,
     UserList,
     IssuesList,
     SessionBlock,
@@ -20,7 +18,7 @@ export default {
 
   mixins: [HandleAuth],
   computed: {
-    ...mapGetters(["isUserAdmin", "issues"]),
+    ...mapGetters(["isUserAdmin", "issues", "githubApiToken"]),
     estimatedIssues() {
       if (this.issues?.length) {
         return this.issues?.filter((issue) => issue.finalVote);
@@ -29,15 +27,12 @@ export default {
     },
   },
   methods: {
-    updateDialogVisibility(val) {
-      this.showNotLoggedDialog = val;
-    },
     // sample logic to add a label to an issue - needs permissions from the repo
     // async addLabelToIssue() {
     //   this.$axios({
     //     method: "post",
     //     headers: {
-    //       Authorization: `Bearer ${process.env.VUE_APP_API_TOKEN}`,
+    //       Authorization: `Bearer ${this.githubApiToken}`,
     //       "X-GitHub-Api-Version": "2022-11-28",
     //     },
     //     url: `https://api.github.com/repos/rancher/dashboard/issues/8087/labels`,
@@ -53,17 +48,11 @@ export default {
 <template>
   <div>
     <!-- loading -->
-    <v-overlay :value="loading">
+    <v-overlay :value="loadingValidateRoom">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
     <!-- welcome to room -->
-    <div v-if="!loading">
-      <NotLoggedDialog
-        :showNotLoggedDialog="showNotLoggedDialog"
-        :sessionName="sessionName"
-        :userId="userId"
-        @updateShowNotLoggedDialog="updateDialogVisibility"
-      />
+    <div v-if="!loadingValidateRoom">
       <div>
         <!-- <v-btn outlined class="btn-danger" @click="addLabelToIssue()">
           add label
@@ -80,4 +69,8 @@ export default {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.placeholder-block {
+  margin-bottom: 1rem;
+}
+</style>
